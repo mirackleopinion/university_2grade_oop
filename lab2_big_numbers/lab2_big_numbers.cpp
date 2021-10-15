@@ -1,20 +1,79 @@
-﻿// lab2_big_numbers.cpp : Этот файл содержит функцию "main". Здесь начинается и заканчивается выполнение программы.
-//
+﻿#include <iostream>
+#include <string>
+#include <vector>
+#include <stdexcept>
 
-#include <iostream>
+class BigNumber {
+public:
+    BigNumber(std::string s) {
+        for (int i = 0; i < s.length(); ++i) {
+            auto it = this->data.begin();
+            auto n = cifers.find_first_of(s[i]);
+
+            if (n == std::string::npos) {
+                std::cout << "Not a number: '" << s[i] << "' in '" << s << "' at position " << i << "!\n";
+                std::exit(1);
+            }else {
+                this->data.insert(it, n);
+            };
+        }
+    };
+
+    BigNumber(std::vector<int> v) {
+        this->data = v;
+    }
+
+
+    BigNumber multiply_at_int(int x) {
+        std::vector<int> new_data;
+        int carry = 0;
+
+        for (auto it = this->data.begin(); it != this->data.end(); ++it) {
+            int result = *it * x + carry;
+            carry = result / 10;
+            result = result % 10;
+            new_data.push_back(result);
+        }
+
+        if (carry != 0) {
+            new_data.push_back(carry);
+        }
+
+        return BigNumber(new_data);
+    };
+
+
+    std::string to_string() {
+        std::string result;
+        
+        for (auto it = this->data.rbegin(); it != this->data.rend(); ++it)
+        { result.push_back(cifers[*it]);}
+
+        return result;
+    };
+
+private:
+    std::vector<int> data;
+    const std::string cifers = "0123456789";
+};
+
 
 int main()
 {
-    std::cout << "Hello World!\n";
+    std::string s;
+
+    std::cout << "First: ";
+    std::cin >> s;
+
+    BigNumber a(s);
+
+    std::cout << "Second: ";
+    std::cin >> s;
+
+    BigNumber b(s);
+
+    std::cout << a.to_string() << "\n";
+
+    BigNumber c = a.multiply_at_int(3);
+    std::cout << c.to_string() << "\n";
 }
-
-// Запуск программы: CTRL+F5 или меню "Отладка" > "Запуск без отладки"
-// Отладка программы: F5 или меню "Отладка" > "Запустить отладку"
-
-// Советы по началу работы 
-//   1. В окне обозревателя решений можно добавлять файлы и управлять ими.
-//   2. В окне Team Explorer можно подключиться к системе управления версиями.
-//   3. В окне "Выходные данные" можно просматривать выходные данные сборки и другие сообщения.
-//   4. В окне "Список ошибок" можно просматривать ошибки.
-//   5. Последовательно выберите пункты меню "Проект" > "Добавить новый элемент", чтобы создать файлы кода, или "Проект" > "Добавить существующий элемент", чтобы добавить в проект существующие файлы кода.
-//   6. Чтобы снова открыть этот проект позже, выберите пункты меню "Файл" > "Открыть" > "Проект" и выберите SLN-файл.
