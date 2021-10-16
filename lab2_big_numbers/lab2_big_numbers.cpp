@@ -137,6 +137,17 @@ public:
         return BigNumber(new_data);
     }
 
+    BigNumber shift_to_left(int x) {
+        std::vector<int> new_data;
+        new_data.resize(this->data.size() + x, 0);
+
+        for (int i = 0; i < this->data.size(); i++) {
+            new_data[i + x] = this->data[i];
+        }
+
+        return BigNumber(new_data);
+    }
+
 private:
     std::vector<int> data;
     const std::string cifers = "0123456789";
@@ -159,7 +170,7 @@ int main()
 
     std::cout << a.to_string() << "\n";
 
-    BigNumber c = a.sub(b);
+    BigNumber c = a.shift_to_left(3);
     std::cout << c.to_string() << "\n";
 
     std::cout << a.cut(5, 3).to_string() << "\n";
