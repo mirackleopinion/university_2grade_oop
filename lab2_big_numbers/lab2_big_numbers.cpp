@@ -1,30 +1,33 @@
 ﻿#include <iostream>
 #include <string>
 #include <vector>
-#include <stdexcept>
+#include <algorithm>
 
 class BigNumber {
 public:
     BigNumber(std::string s) {
+        this->data.resize(s.length(), 0);
         for (int i = 0; i < s.length(); ++i) {
-            auto it = this->data.begin();
             auto n = cifers.find_first_of(s[i]);
 
             if (n == std::string::npos) {
                 std::cout << "Not a number: '" << s[i] << "' in '" << s << "' at position " << i << "!\n";
                 std::exit(1);
             }else {
-                this->data.insert(it, n);
+                this->data[s.length() - 1 - i] = n;
             };
         }
+
+        remove_zeros_from_start();
     };
 
     BigNumber(std::vector<int> v) {
         this->data = v;
+
+        remove_zeros_from_start();
     }
 
-
-    BigNumber multiply_at_int(int x) {
+    BigNumber multiply(int x) {
         std::vector<int> new_data;
         int carry = 0;
 
@@ -42,6 +45,76 @@ public:
         return BigNumber(new_data);
     };
 
+    BigNumber add(const BigNumber &other) {
+        std::vector<int> new_data;
+        int carry = 0;
+        int first, second;
+        int max_size = std::max(this->data.size(), other.data.size()) + 1;
+
+        new_data.resize(max_size, 0);
+
+        for (int i = 0; i < max_size; i++) {
+            if (i < this->data.size())
+                first = this->data[i]; 
+            else 
+                first = 0;
+
+            if (i < other.data.size())
+                second = other.data[i];
+            else
+                second = 0;
+
+            int result = first + second + carry;
+            carry = result / 10;
+            result = result % 10;
+
+            new_data[i] = result;
+        }
+
+        return BigNumber(new_data);
+    };
+
+    BigNumber sub(const BigNumber& other) {
+        std::vector<int> new_data;
+        int carry = 0;
+        int first, second;
+        int max_size = std::max(this->data.size(), other.data.size()) + 1;
+
+        new_data.resize(max_size, 0);
+
+        for (int i = 0; i < max_size; i++) {
+            if (i < this->data.size())
+                first = this->data[i];
+            else
+                first = 0;
+
+            if (i < other.data.size())
+                second = other.data[i];
+            else
+                second = 0;
+
+            
+
+            int result = first  - second - carry;
+            if (result < 0) {
+                result += 10;
+                carry = 1;
+            }
+            else
+                carry = 0;
+            
+            new_data[i] = result;
+        }
+
+        return BigNumber(new_data);
+    };
+
+    void remove_zeros_from_start() {
+        while (this->data[this->data.size() - 1] == 0 and this->data.size() > 1)
+        {
+            this->data.pop_back();
+        }
+    };
 
     std::string to_string() {
         std::string result;
@@ -51,6 +124,18 @@ public:
 
         return result;
     };
+
+    BigNumber cut(int start, int end) {
+        std::vector<int> new_data;
+        int len = start - end + 1;
+        new_data.resize(len, 0);
+
+        for (int i=0; i< len; i++) {
+            new_data[i] = this->data[end + i];
+        }
+
+        return BigNumber(new_data);
+    }
 
 private:
     std::vector<int> data;
@@ -74,6 +159,9 @@ int main()
 
     std::cout << a.to_string() << "\n";
 
-    BigNumber c = a.multiply_at_int(3);
+    BigNumber c = a.sub(b);
     std::cout << c.to_string() << "\n";
+
+    std::cout << a.cut(5, 3).to_string() << "\n";
+    std::cout << a.cut(2, 0).to_string() << "\n";
 }
