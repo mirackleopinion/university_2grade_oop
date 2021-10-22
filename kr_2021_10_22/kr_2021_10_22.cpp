@@ -4,7 +4,8 @@
 
 int main()
 {
-    const int base = 36;
+    const int out_base = 36;
+    const int in_base = 10;
     std::string abc = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
     std::string s;
 
@@ -19,15 +20,15 @@ int main()
         int y;
 
         for (auto i = 0; i < s.size(); i++) {
-            x *= 10;
-            x += char(s[i]) - '0';
+            x *= in_base;
+            x += abc.find(s[i]);
 
-            y = x / base;
+            y = x / out_base;
 
             if (y != 0 or temp.size() != 0)
                 temp.push_back(abc[y]);
 
-            x -= base * y;
+            x -= out_base * y;
         }
 
         result.insert(result.begin(), abc[x]);
