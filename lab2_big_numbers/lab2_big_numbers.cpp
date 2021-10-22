@@ -1,8 +1,8 @@
-﻿#include <iostream>
+﻿#include <algorithm>
+#include <iostream>
+#include <random>
 #include <string>
 #include <vector>
-#include <algorithm>
-#include <random>
 
 class BigNumber {
 public:
@@ -44,7 +44,6 @@ public:
         if (this->is_debug)
             std::cout << "Destructor " << this->id << " " << this->to_string() << "\n";
     }
-
 
     BigNumber operator *(int x) {
         BigNumber output;
@@ -144,7 +143,6 @@ public:
 
         return result;
     };
-
 
     BigNumber operator()(int start, int end) {
         BigNumber output;
