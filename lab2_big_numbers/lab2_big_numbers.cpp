@@ -199,7 +199,23 @@ public:
 
         return (z2 << (splitter * 2)) + z0 + (z1 << splitter) - ((z2 + z0) << splitter);
     }
+   
+    BigNumber mul_schonhage(BigNumber& other) {
+        BigNumber result;
+        result.data.resize(this->data.size() + other.data.size(), 0);
 
+        for (size_t i = 0; i < this->data.size(); i++)
+            for (size_t j = 0; j < other.data.size(); j++)
+                result.data[i + j] += this->data[i] * other.data[j];
+        int overflow = 0;
+        for (size_t i = 0; i < result.data.size(); i++) {
+            result.data[i] += overflow;
+            overflow = result.data[i] / 10;
+            result.data[i] %= 10;
+        }
+        result.remove_zeros_from_start();
+        return result;
+    }
 private:
     void remove_zeros_from_start() {
         while (this->data[this->data.size() - 1] == 0 and this->data.size() > 1)
@@ -215,7 +231,6 @@ private:
 
 int main()
 {
-
     std::string s;
 
     std::cout << "First: ";
@@ -227,4 +242,5 @@ int main()
     BigNumber b(s);
 
     std::cout << "Karatsuba multiplication: " << a.to_string() << " * " << b.to_string() << " = " << a.mul_karatsuba(b).to_string() << "\n";
+    std::cout << "Schonhage-Strassen multiplication: " << a.to_string() << " * " << b.to_string() << " = " << a.mul_schonhage(b).to_string() << "\n";
 }
