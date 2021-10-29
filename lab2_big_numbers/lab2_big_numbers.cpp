@@ -90,6 +90,12 @@ public:
         return output;
     }
 
+    BigNumber& operator =(const BigNumber& other) {
+        this->data = other.data;
+        this->sign = other.sign;
+        return (*this);
+    }
+
     friend BigNumber operator -(const BigNumber lhs, const BigNumber& rhs) {
         if (rhs.sign < 0)
             return lhs + -(rhs);
@@ -166,6 +172,95 @@ public:
         }
     }
 
+    friend BigNumber operator /(const BigNumber lhs, const BigNumber& rhs) {
+        if (rhs == BigNumber("0")) {
+            std::cout << " Divizion by zero!\n";
+            std::exit(1);
+        }
+
+        BigNumber _1 = abs(rhs);
+        BigNumber _2 = _1 * 2;
+        BigNumber _3 = _1 * 3;
+        BigNumber _4 = _1 * 4;
+        BigNumber _5 = _1 * 5;
+        BigNumber _6 = _1 * 6;
+        BigNumber _7 = _1 * 7;
+        BigNumber _8 = _1 * 8;
+        BigNumber _9 = _1 * 9;
+
+        BigNumber result;
+        result.sign = lhs.sign * rhs.sign;
+
+        BigNumber temp;
+
+        for (size_t i = 0; i < lhs.data.size(); i++) {
+            temp.data.insert(temp.data.begin(), 1, 0);
+            temp.data[0] = lhs.data[lhs.data.size() - i - 1];
+            temp.remove_zeros_from_start();
+             
+            if (temp < _1) {
+                result.data.insert(result.data.begin(), 0);
+                continue;
+            }
+
+            int digit;
+
+            if (temp <= _5) { //1 2 3 4 5
+                if (temp <= _3) { //1 2 3
+                    if (temp < _3) { //1 2
+                        if (temp < _2) { // 1
+                            result.data.insert(result.data.begin(), 1);
+                            temp = temp - _1;
+                        }
+                        else { // 2
+                            result.data.insert(result.data.begin(), 2);
+                            temp = temp - _2;
+                        }
+                    }
+                    else { // 3
+                        result.data.insert(result.data.begin(), 3);
+                        temp = temp - _3;
+                    }
+                }
+                else { // 4 5
+                    if (temp < _5) { // 4
+                        result.data.insert(result.data.begin(), 4);
+                        temp = temp - _4;
+                    }
+                    else { // 5
+                        result.data.insert(result.data.begin(), 5);
+                        temp = temp - _5;
+                    }
+                }
+            }
+            else { //6 7 8 9
+                if (temp < _8) { // 6 7
+                    if (temp < _7) { // 6
+                        result.data.insert(result.data.begin(), 6);
+                        temp = temp - _6;
+                    }
+                    else { //7
+                        result.data.insert(result.data.begin(), 7);
+                        temp = temp - _7;
+                    }
+                }
+                else { //8 9
+                    if (temp < _9) { // 8
+                        result.data.insert(result.data.begin(), 8);
+                        temp = temp - _8;
+                    }
+                    else { // 9
+                        result.data.insert(result.data.begin(), 9);
+                        temp = temp - _9;
+                    }
+                }
+            }
+        }
+        
+        result.remove_zeros_from_start();
+        return result;
+    }
+
     std::string to_string() const {
         std::string result;
 
@@ -191,6 +286,10 @@ public:
         }
 
         return output;
+    }
+
+    BigNumber operator <<=(size_t x) {
+        this->data.insert(this->data.begin(), x, 0);
     }
 
     BigNumber operator <<(size_t x) {
@@ -330,227 +429,7 @@ private:
 
 int main()
 {
-
-    // test ==, !=
-    BigNumber a("-1");
-    BigNumber b("-1");
-    std::cout << "a != b:" << (a != b) << " \n";
-    std::cout << "a == b:" << (a == b) << " \n";
-
-    // test BigNumber * int
-    BigNumber c("-5");
-    BigNumber d("-2");
-    BigNumber e("0");
-    BigNumber f("-0");
-    BigNumber g("2");
-    BigNumber h("1");
-    BigNumber i("5432");
-    std::cout << "a: " << a.to_string() << " \n";
-    std::cout << "b: " << b.to_string() << " \n";
-    std::cout << "c: " << c.to_string() << " \n";
-    std::cout << "d: " << d.to_string() << " \n";
-    std::cout << "e: " << e.to_string() << " \n";
-    std::cout << "f: " << f.to_string() << " \n";
-    std::cout << "g: " << g.to_string() << " \n";
-    std::cout << "h: " << h.to_string() << " \n";
-    std::cout << "i: " << i.to_string() << " \n";
-
-    std::cout << "i(3, 2) .. i(1,0): " << i(3, 2).to_string() << " .. " << i(1, 0).to_string() << " \n";
-
-    std::cout << "a*2: " << (a * 2).to_string() << " \n";
-    std::cout << "b*2: " << (b * 2).to_string() << " \n";
-    std::cout << "c*2: " << (c * 2).to_string() << " \n";
-    std::cout << "d*2: " << (d * 2).to_string() << " \n";
-    std::cout << "e*2: " << (e * 2).to_string() << " \n";
-    std::cout << "f*2: " << (f * 2).to_string() << " \n";
-    std::cout << "g*2: " << (g * 2).to_string() << " \n";
-
-    std::cout << "a*0: " << (a * 0).to_string() << " \n";
-    std::cout << "b*0: " << (b * 0).to_string() << " \n";
-    std::cout << "c*0: " << (c * 0).to_string() << " \n";
-    std::cout << "d*0: " << (d * 0).to_string() << " \n";
-    std::cout << "e*0: " << (e * 0).to_string() << " \n";
-    std::cout << "f*0: " << (f * 0).to_string() << " \n";
-    std::cout << "g*0: " << (g * 0).to_string() << " \n";
-
-    std::cout << "a*-2: " << (a * -2).to_string() << " \n";
-    std::cout << "b*-2: " << (b * -2).to_string() << " \n";
-    std::cout << "c*-2: " << (c * -2).to_string() << " \n";
-    std::cout << "d*-2: " << (d * -2).to_string() << " \n";
-    std::cout << "e*-2: " << (e * -2).to_string() << " \n";
-    std::cout << "f*-2: " << (f * -2).to_string() << " \n";
-    std::cout << "g*-2: " << (g * -2).to_string() << " \n";
-
-    // test unary+
-    std::cout << "+a: " << (+a).to_string() << " \n";
-    std::cout << "+b: " << (+b).to_string() << " \n";
-    std::cout << "+c: " << (+c).to_string() << " \n";
-    std::cout << "+d: " << (+d).to_string() << " \n";
-    std::cout << "+e: " << (+e).to_string() << " \n";
-    std::cout << "+f: " << (+f).to_string() << " \n";
-    std::cout << "+g: " << (+g).to_string() << " \n";
-    std::cout << "+h: " << (+h).to_string() << " \n";
-    std::cout << "+i: " << (+i).to_string() << " \n";
-
-    // test unary-
-    std::cout << "-a: " << (-a).to_string() << " \n";
-    std::cout << "-b: " << (-b).to_string() << " \n";
-    std::cout << "-c: " << (-c).to_string() << " \n";
-    std::cout << "-d: " << (-d).to_string() << " \n";
-    std::cout << "-e: " << (-e).to_string() << " \n";
-    std::cout << "-f: " << (-f).to_string() << " \n";
-    std::cout << "-g: " << (-g).to_string() << " \n";
-    std::cout << "-h: " << (-h).to_string() << " \n";
-    std::cout << "-i: " << (-i).to_string() << " \n";
-
-    //test <
-    std::cout << "a < i: " << (a < i) << " \n";
-    std::cout << "i < a: " << (i < a) << " \n";
-    std::cout << "i < i: " << (i < i) << " \n";
-    std::cout << "a < a: " << (a < a) << " \n";
-
-
-    std::cout << "e: " << e.to_string() << " \n";
-    std::cout << "g: " << g.to_string() << " \n";
-    std::cout << "i: " << i.to_string() << " \n";
-
-    std::cout << "e < g: " << (e < g) << " \n";
-    std::cout << "e < i: " << (e < i) << " \n";
-    std::cout << "g < e: " << (g < e) << " \n";
-    std::cout << "g < i: " << (g < i) << " \n";
-    std::cout << "i < e: " << (i < e) << " \n";
-    std::cout << "i < g: " << (i < g) << " \n";
-
-    std::cout << "c: " << c.to_string() << " \n";
-    std::cout << "d: " << d.to_string() << " \n";
-
-    std::cout << "c < d: " << (c < d) << " \n";
-    std::cout << "d < c: " << (d < c) << " \n";
-
-    // test >
-    std::cout << "a: " << a.to_string() << " \n";
-    std::cout << "e: " << e.to_string() << " \n";
-    std::cout << "i: " << i.to_string() << " \n";
-
-    std::cout << "a > a: " << (a > a) << " \n";
-    std::cout << "a > e: " << (a > e) << " \n";
-    std::cout << "a > i: " << (a > i) << " \n";
-
-    std::cout << "e > e: " << (e > e) << " \n";
-    std::cout << "e > a: " << (e > a) << " \n";
-    std::cout << "e > i: " << (e > i) << " \n";
-
-    std::cout << "i > i: " << (i > i) << " \n";
-    std::cout << "i > a: " << (i > a) << " \n";
-    std::cout << "i > e: " << (i > e) << " \n";
-
-    // test >=
-    std::cout << "a: " << a.to_string() << " \n";
-    std::cout << "e: " << e.to_string() << " \n";
-    std::cout << "i: " << i.to_string() << " \n";
-
-    std::cout << "a >= a: " << (a >= a) << " \n";
-    std::cout << "a >= e: " << (a >= e) << " \n";
-    std::cout << "a >= i: " << (a >= i) << " \n";
-
-    std::cout << "e >= e: " << (e >= e) << " \n";
-    std::cout << "e >= a: " << (e >= a) << " \n";
-    std::cout << "e >= i: " << (e >= i) << " \n";
-
-    std::cout << "i >= i: " << (i >= i) << " \n";
-    std::cout << "i >= a: " << (i >= a) << " \n";
-    std::cout << "i >= e: " << (i >= e) << " \n";
-
-    // test <=
-    std::cout << "a: " << a.to_string() << " \n";
-    std::cout << "e: " << e.to_string() << " \n";
-    std::cout << "i: " << i.to_string() << " \n";
-
-    std::cout << "a <= a: " << (a <= a) << " \n";
-    std::cout << "a <= e: " << (a <= e) << " \n";
-    std::cout << "a <= i: " << (a <= i) << " \n";
-
-    std::cout << "e <= e: " << (e <= e) << " \n";
-    std::cout << "e <= a: " << (e <= a) << " \n";
-    std::cout << "e <= i: " << (e <= i) << " \n";
-
-    std::cout << "i <= i: " << (i <= i) << " \n";
-    std::cout << "i <= a: " << (i <= a) << " \n";
-    std::cout << "i <= e: " << (i <= e) << " \n";
-
-    std::cout << "i >= i: " << (i >= i) << " \n";
-    std::cout << "i >= a: " << (i >= a) << " \n";
-    std::cout << "i >= e: " << (i >= e) << " \n";
-
-    // test ==
-    std::cout << "a: " << a.to_string() << " \n";
-    std::cout << "e: " << e.to_string() << " \n";
-    std::cout << "i: " << i.to_string() << " \n";
-
-    std::cout << "a == a: " << (a == a) << " \n";
-    std::cout << "a == e: " << (a == e) << " \n";
-    std::cout << "a == i: " << (a == i) << " \n";
-
-    std::cout << "e == e: " << (e == e) << " \n";
-    std::cout << "e == a: " << (e == a) << " \n";
-    std::cout << "e == i: " << (e == i) << " \n";
-
-    std::cout << "i == i: " << (i == i) << " \n";
-    std::cout << "i == a: " << (i == a) << " \n";
-    std::cout << "i == e: " << (i == e) << " \n";
-
-    // test !=
-    std::cout << "a: " << a.to_string() << " \n";
-    std::cout << "e: " << e.to_string() << " \n";
-    std::cout << "i: " << i.to_string() << " \n";
-
-    std::cout << "a != a: " << (a != a) << " \n";
-    std::cout << "a != e: " << (a != e) << " \n";
-    std::cout << "a != i: " << (a != i) << " \n";
-
-    std::cout << "e != e: " << (e != e) << " \n";
-    std::cout << "e != a: " << (e != a) << " \n";
-    std::cout << "e != i: " << (e != i) << " \n";
-
-    std::cout << "i != i: " << (i != i) << " \n";
-    std::cout << "i != a: " << (i != a) << " \n";
-    std::cout << "i != e: " << (i != e) << " \n";
-
-    // test +
-    BigNumber m1("-1");
-    BigNumber m10("-10");
-    BigNumber p1("1");
-    BigNumber p10("10");
-
-    std::cout << "1 + 10: " << (p1 + p10).to_string() << " \n";
-    std::cout << "10 + 1: " << (p10 + p1).to_string() << " \n";
-    std::cout << "-1 + -10: " << (m1 + m10).to_string() << " \n";
-    std::cout << "-10 + -1: " << (m10 + m1).to_string() << " \n";
-    std::cout << "1 + 1: " << (p1 + p1).to_string() << " \n";
-    std::cout << "10 + 10: " << (p10 + p10).to_string() << " \n";
-    std::cout << "-1 + 10: " << (m1 + p10).to_string() << " \n";
-    std::cout << "10 + -1: " << (p10 + m1).to_string() << " \n";
-    std::cout << "1 + -10: " << (p1 + m10).to_string() << " \n";
-    std::cout << "-10 + 1: " << (m10 + p1).to_string() << " \n";
-    std::cout << "-1 + -1: " << (m1 + m1).to_string() << " \n";
-    std::cout << "-10 + -10: " << (m10 + m10).to_string() << " \n";
-
-    // test -
-    std::cout << "1 - 10: " << (p1 - p10).to_string() << " \n";
-    std::cout << "10 - 1: " << (p10 - p1).to_string() << " \n";
-    std::cout << "-1 - -10: " << (m1 - m10).to_string() << " \n";
-    std::cout << "-10 - -1: " << (m10 - m1).to_string() << " \n";
-    std::cout << "1 - 1: " << (p1 - p1).to_string() << " \n";
-    std::cout << "10 - 10: " << (p10 - p10).to_string() << " \n";
-    std::cout << "-1 - 10: " << (m1 - p10).to_string() << " \n";
-    std::cout << "10 - -1: " << (p10 - m1).to_string() << " \n";
-    std::cout << "1 - -10: " << (p1 - m10).to_string() << " \n";
-    std::cout << "-10 - 1: " << (m10 - p1).to_string() << " \n";
-    std::cout << "-1 - -1: " << (m1 - m1).to_string() << " \n";
-    std::cout << "-10 - -10: " << (m10 - m10).to_string() << " \n";
-
-
-
+    /*
     std::string s;
 
     std::cout << "First: ";
@@ -563,5 +442,9 @@ int main()
 
     std::cout << "Karatsuba multiplication: " << first.to_string() << " * " << second.to_string() << " = " << first.mul_karatsuba(second).to_string() << "\n";
     std::cout << "Schonhage-Strassen multiplication: " << first.to_string() << " * " << second.to_string() << " = " << first.mul_schonhage(second).to_string() << "\n";
+    */
+    BigNumber a("123456");
+    BigNumber b("33");
+    std::cout << (a / b).to_string() << "\n";
 
 }
