@@ -172,6 +172,10 @@ public:
         }
     }
 
+    friend BigNumber operator %(BigNumber lhs, BigNumber& rhs) {
+        return lhs - ((lhs / rhs).mul_karatsuba(rhs));
+    }
+
     friend BigNumber operator /(const BigNumber lhs, const BigNumber& rhs) {
         if (rhs == BigNumber("0")) {
             std::cout << " Divizion by zero!\n";
@@ -198,53 +202,52 @@ public:
             temp.data[0] = lhs.data[lhs.data.size() - i - 1];
             temp.remove_zeros_from_start();
              
-            if (temp < _1) {
-                result.data.insert(result.data.begin(), 0);
-                continue;
-            }
-
-            int digit;
-
-            if (temp <= _5) { //1 2 3 4 5
-                if (temp <= _3) { //1 2 3
-                    if (temp < _3) { //1 2
-                        if (temp < _2) { // 1
+            if (temp < _5) { // 01234
+                if (temp < _3) { // 012
+                    if (temp < _2) { // 01
+                        if (temp < _1) { // 0
+                            result.data.insert(result.data.begin(), 0);
+                        }
+                        else { // 1
                             result.data.insert(result.data.begin(), 1);
                             temp = temp - _1;
                         }
-                        else { // 2
-                            result.data.insert(result.data.begin(), 2);
-                            temp = temp - _2;
-                        }
                     }
-                    else { // 3
+                    else { // 2
+                        result.data.insert(result.data.begin(), 2);
+                        temp = temp - _2;
+                    }
+                
+                }
+                else { // 34
+                    if (temp < _4) { // 3
                         result.data.insert(result.data.begin(), 3);
                         temp = temp - _3;
                     }
-                }
-                else { // 4 5
-                    if (temp < _5) { // 4
+                    else { // 4
                         result.data.insert(result.data.begin(), 4);
                         temp = temp - _4;
                     }
-                    else { // 5
-                        result.data.insert(result.data.begin(), 5);
-                        temp = temp - _5;
-                    }
                 }
             }
-            else { //6 7 8 9
-                if (temp < _8) { // 6 7
-                    if (temp < _7) { // 6
-                        result.data.insert(result.data.begin(), 6);
-                        temp = temp - _6;
+            else { // 56789
+                if (temp < _8) { // 567
+                    if (temp < _7) { // 56
+                        if (temp < _6) { // 5
+                            result.data.insert(result.data.begin(), 5);
+                            temp = temp - _5;
+                        }
+                        else { // 6
+                            result.data.insert(result.data.begin(), 6);
+                            temp = temp - _6;
+                        }
                     }
-                    else { //7
+                    else { // 7
                         result.data.insert(result.data.begin(), 7);
                         temp = temp - _7;
                     }
                 }
-                else { //8 9
+                else { //89
                     if (temp < _9) { // 8
                         result.data.insert(result.data.begin(), 8);
                         temp = temp - _8;
@@ -429,7 +432,6 @@ private:
 
 int main()
 {
-    /*
     std::string s;
 
     std::cout << "First: ";
@@ -442,9 +444,6 @@ int main()
 
     std::cout << "Karatsuba multiplication: " << first.to_string() << " * " << second.to_string() << " = " << first.mul_karatsuba(second).to_string() << "\n";
     std::cout << "Schonhage-Strassen multiplication: " << first.to_string() << " * " << second.to_string() << " = " << first.mul_schonhage(second).to_string() << "\n";
-    */
-    BigNumber a("123456");
-    BigNumber b("33");
-    std::cout << (a / b).to_string() << "\n";
-
+    std::cout << "Cook division: " << first.to_string() << " / " << second.to_string() << " = " << (first / second).to_string() << "\n";
+    std::cout << "               " << first.to_string() << " % " << second.to_string() << " = " << (first % second).to_string() << "\n";
 }
