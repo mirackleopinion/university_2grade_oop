@@ -76,7 +76,8 @@ public:
         return output;
     };
 
-    int operator [](size_t pos) const {
+    int operator [](size_t pos) const 
+    {
         if (pos < this->data.size())
             return this->data[pos];
         return 0;
@@ -280,6 +281,12 @@ public:
     };
 
     BigNumber operator()(size_t start, size_t end) {
+        if (start >= this->data.size())
+            start = this->data.size() - 1;
+
+        if (end > start)
+            return BigNumber("0");
+
         BigNumber output;
         size_t len = start - end + 1;
         output.data.resize(len, 0);
@@ -375,13 +382,13 @@ public:
         auto my_size = this->data.size();
 
         if (my_size < 2) {
-            return other * this->data[0];
+            return other * (this->data[0] * this->sign);
         }
 
         auto other_size = other.data.size();
 
         if (other_size < 2) {
-            return *this * other.data[0];
+            return *this * (other.data[0] * other.sign);
         }
 
         size_t splitter = std::min(my_size, other_size) / 2;
@@ -425,10 +432,15 @@ public:
     BigNumber mul_toom_cook(BigNumber& other) {
 
         auto my_size = this->data.size();
+
+        if (my_size < 2) {
+            return other * (this->data[0] * this->sign);
+        }
+
         auto other_size = other.data.size();
 
-        if (my_size < 9 or other_size < 9) {
-            return (*this).mul_karatsuba(other);
+        if (other_size < 2) {
+            return *this * (other.data[0] * other.sign);
         }
 
         size_t splitter = std::min(this->data.size()/3, other.data.size()/3)+1;
@@ -513,12 +525,8 @@ int main()
     std::cout << "Cook division: " << first.to_string() << " / " << second.to_string() << " = " << (first / second).to_string() << "\n";
     std::cout << "               " << first.to_string() << " % " << second.to_string() << " = " << (first % second).to_string() << "\n";
 */
-    /*
     BigNumber first("1234567890123456789012");
     BigNumber second("987654321987654321098");
-    */
-    BigNumber first("-100519632");
-    BigNumber second("-31723594");
 
     BigNumber r = first.mul_toom_cook(second);
     std::cout << "Cook4: " << first.to_string() << " * " << second.to_string() << " = " << r.to_string() << "\n";
