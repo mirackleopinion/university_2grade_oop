@@ -330,6 +330,10 @@ public:
         return !(lhs == rhs);
     }
 
+    const BigNumber operator ~() {
+    
+    }
+
     friend bool operator<(const BigNumber& l, const BigNumber& r) {
         if (l.sign < 0 and r.sign > 0)
             return true;
@@ -362,10 +366,11 @@ public:
 
     BigNumber mul_karatsuba(BigNumber& other) {
         // https://en.wikipedia.org/wiki/Karatsuba_algorithm
-        if (this->sign < 0 or other.sign < 0) {
+        /*if (this->sign < 0 or other.sign < 0) {
             std::cout << "mul_karatsuba() works only with positive numbers!\n";
             std::exit(1);
         }
+        */
 
         auto my_size = this->data.size();
 
@@ -395,7 +400,9 @@ public:
 
         BigNumber z2 = high1.mul_karatsuba(high2);
 
-        return (z2 << (splitter * 2)) + z0 + (z1 << splitter) - ((z2 + z0) << splitter);
+        BigNumber result = (z2 << (splitter * 2)) + z0 + (z1 << splitter) - ((z2 + z0) << splitter);
+        result.sign = result.sign = other.sign * this->sign;
+        return result;
     }
 
     BigNumber mul_schonhage(BigNumber& other) {
@@ -415,6 +422,65 @@ public:
         return result;
     }
 
+    BigNumber mul_toom_cook(BigNumber& other) {
+
+        auto my_size = this->data.size();
+        auto other_size = other.data.size();
+
+        if (my_size < 9 or other_size < 9) {
+            return (*this).mul_karatsuba(other);
+        }
+
+        size_t splitter = std::min(this->data.size()/3, other.data.size()/3)+1;
+
+        BigNumber m0 = (*this)(splitter - 1, 0);
+        BigNumber m1 = (*this)(2*splitter - 1, splitter);
+        BigNumber m2 = (*this)(my_size - 1, 2*splitter);
+
+        BigNumber n0 = other(splitter - 1, 0);
+        BigNumber n1 = other(2 * splitter - 1, splitter);
+        BigNumber n2 = other(other_size - 1, 2 * splitter);
+
+        BigNumber p_0 = m0;
+        BigNumber p_1 = m0 + m1 + m2;
+        BigNumber p_m1 = m0 - m1 + m2;
+        BigNumber p_m2 = m0 - (m1 * 2) + (m2 * 4);
+        BigNumber p_inf = m2;
+
+        BigNumber q_0 = n0;
+        BigNumber q_1 = n0 + n1 + n2;
+        BigNumber q_m1 = n0 - n1 + n2;
+        BigNumber q_m2 = n0 - (n1 * 2) + (n2 * 4);
+        BigNumber q_inf = n2;
+
+        BigNumber r_0 = p_0.mul_toom_cook(q_0);
+        BigNumber r_1 = p_1.mul_toom_cook(q_1);
+        BigNumber r_m1 = p_m1.mul_toom_cook(q_m1);
+        BigNumber r_m2 = p_m2.mul_toom_cook(q_m2);
+        BigNumber r_inf = p_inf.mul_toom_cook(q_inf);
+
+        BigNumber _3("3"), _2("2");
+
+        BigNumber x0 = r_0;
+        BigNumber x4 = r_inf;
+        BigNumber x3 = (r_m2 - r_1) / _3;
+        BigNumber x1 = (r_1 - r_m1) / _2;
+        BigNumber x2 = r_m1 - r_0;
+        x3 = (x2 - x3) / _2 + (r_inf * 2);
+        x2 = x2 + x1 - x4;
+        x1 = x1 - x3;
+
+        BigNumber result = x0 
+            + (x1 << splitter) 
+            + (x2 << (splitter * 2)) 
+            + (x3 << (splitter * 3)) 
+            + (x4 << (splitter * 4));
+        result.sign = other.sign * this->sign;
+        return result;
+    }
+
+
+
 private:
     void remove_zeros_from_start() {
         while (this->data[this->data.size() - 1] == 0 and this->data.size() > 1)
@@ -431,7 +497,7 @@ private:
 
 
 int main()
-{
+{/*
     std::string s;
 
     std::cout << "First: ";
@@ -446,4 +512,15 @@ int main()
     std::cout << "Schonhage-Strassen multiplication: " << first.to_string() << " * " << second.to_string() << " = " << first.mul_schonhage(second).to_string() << "\n";
     std::cout << "Cook division: " << first.to_string() << " / " << second.to_string() << " = " << (first / second).to_string() << "\n";
     std::cout << "               " << first.to_string() << " % " << second.to_string() << " = " << (first % second).to_string() << "\n";
-}
+*/
+    /*
+    BigNumber first("1234567890123456789012");
+    BigNumber second("987654321987654321098");
+    */
+    BigNumber first("-100519632");
+    BigNumber second("-31723594");
+
+    BigNumber r = first.mul_toom_cook(second);
+    std::cout << "Cook4: " << first.to_string() << " * " << second.to_string() << " = " << r.to_string() << "\n";
+
+    }
