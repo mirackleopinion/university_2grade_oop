@@ -370,6 +370,41 @@ public:
     friend inline bool operator > (const BigNumber& lhs, const BigNumber& rhs) { return rhs < lhs; }
     friend inline bool operator <=(const BigNumber& lhs, const BigNumber& rhs) { return !(lhs > rhs); }
     friend inline bool operator >=(const BigNumber& lhs, const BigNumber& rhs) { return !(lhs < rhs); }
+    
+    friend BigNumber gcd(const BigNumber a, const BigNumber& b)
+    {   
+        if (a == b)
+            return a;
+
+        if (a > b)
+            return gcd(a - b, b);
+        else
+            return gcd(b - a, a);
+    }
+   
+
+    BigNumber pow(const BigNumber& power) {
+        if (power.sign < 0) {
+            std::cout << "Negative power!\n";
+            std::exit(1);
+        }
+        
+        BigNumber _1("1");
+        BigNumber _0("0");
+
+        if (power == _0)
+            return _0;
+
+        BigNumber k("1");
+        BigNumber result = *this;
+
+
+        while (k < power) {
+            k = k + _1;
+            result = this->mul_karatsuba(result);
+        }
+        return result;
+    }
 
     BigNumber mul_karatsuba(BigNumber& other) {
         // https://en.wikipedia.org/wiki/Karatsuba_algorithm
@@ -431,6 +466,8 @@ public:
 
     BigNumber mul_toom_cook(BigNumber& other) {
 
+        //https://hrwiki.ru/wiki/Toom%E2%80%93Cook_multiplication
+
         auto my_size = this->data.size();
 
         if (my_size < 2) {
@@ -491,6 +528,12 @@ public:
         return result;
     }
 
+    BigNumber chek_sol_strassen() {
+    }
+    
+
+    BigNumber chek_rabin_miller() {
+    }
 
 
 private:
@@ -524,11 +567,15 @@ int main()
     std::cout << "Schonhage-Strassen multiplication: " << first.to_string() << " * " << second.to_string() << " = " << first.mul_schonhage(second).to_string() << "\n";
     std::cout << "Cook division: " << first.to_string() << " / " << second.to_string() << " = " << (first / second).to_string() << "\n";
     std::cout << "               " << first.to_string() << " % " << second.to_string() << " = " << (first % second).to_string() << "\n";
-*/
+
     BigNumber first("1234567890123456789012");
     BigNumber second("987654321987654321098");
 
     BigNumber r = first.mul_toom_cook(second);
     std::cout << "Cook4: " << first.to_string() << " * " << second.to_string() << " = " << r.to_string() << "\n";
+*/
 
+    BigNumber first("54");
+    BigNumber second("24");
+    std::cout << "pow: " << gcd(first, second).to_string() << "\n";
     }
