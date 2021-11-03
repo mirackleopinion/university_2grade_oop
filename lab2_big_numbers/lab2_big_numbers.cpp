@@ -337,10 +337,6 @@ public:
         return !(lhs == rhs);
     }
 
-    const BigNumber operator ~() {
-    
-    }
-
     friend bool operator<(const BigNumber& l, const BigNumber& r) {
         if (l.sign < 0 and r.sign > 0)
             return true;
@@ -382,7 +378,6 @@ public:
             return gcd(b - a, a);
     }
    
-
     BigNumber pow(const BigNumber& power) {
         if (power.sign < 0) {
             std::cout << "Negative power!\n";
@@ -528,11 +523,113 @@ public:
         return result;
     }
 
-    BigNumber chek_sol_strassen() {
-    }
-    
+    friend bool chek_sol_strassen(BigNumber& p, BigNumber& a) {
+        BigNumber _1("1");
+        BigNumber _2("2");
 
-    BigNumber chek_rabin_miller() {
+        if (gcd(a, p) == _1) 
+            return false;
+        BigNumber K = (p - _1) / _2;
+        BigNumber j = ((p - _1) / _2).mul_karatsuba(a) % p;
+
+        //TODO Jakobi
+        BigNumber jabobi = get_jacobi(a, p);
+
+    }
+
+    std::vector<BigNumber> prime_factorization() {
+        std::vector<BigNumber> result;
+        BigNumber x = (*this);
+        BigNumber _1("1"), _0("0");
+        BigNumber half = x / BigNumber("2");
+        for (BigNumber i("2"); i <= half; i = i + _1) {
+            while (x % i == _0) {
+                result.push_back(i);
+                x = x / i;
+            }
+        }
+        return result;
+    }
+
+    friend BigNumber get_legendre_symbol(BigNumber a, BigNumber p) {
+        // https://mathworld.wolfram.com/LegendreSymbol.html
+        BigNumber _0("0"), _1("1"), _m1("-1");
+        BigNumber a_mod_p = a % p;
+
+        if (a_mod_p == _0)
+            return _0;
+
+        for (BigNumber i("1"); i <= p; i = i + _1) {
+            if (i.mul_karatsuba(i) % p == a_mod_p)
+                return _1;
+        }
+
+        return _m1;
+    }
+    friend BigNumber get_jacobi(BigNumber a, BigNumber p) {
+        // https://mathworld.wolfram.com/JacobiSymbol.html
+        BigNumber result("1");
+        auto prime_factorization = p.prime_factorization();
+
+        for (const auto& prime_divider : prime_factorization)
+            result = get_legendre_symbol(a, prime_divider).mul_karatsuba(result);
+
+        return result;
+    }
+
+    
+    friend bool chek_lehmann(BigNumber& a, BigNumber& p) {
+        BigNumber _1("1");
+        BigNumber _m1("-1");
+        BigNumber _2("2");
+
+        BigNumber K = (p - _1) / _2;
+        BigNumber check = a.pow(p);
+        // Если a^((p-1)/2) != 1 или -1 (mod p), то p не является простым.
+        return !(check != _1 or check != _m1);
+    }
+
+    friend bool chek_rabin_miller(BigNumber& p, BigNumber& a) {
+        BigNumber _0("0"), _1("1"), _2("2");
+
+        BigNumber pm1 = p - BigNumber("1");
+
+        BigNumber m = pm1;
+        BigNumber b("0");
+
+        while (m % _2 == _0)
+        {
+            m = m / _2;
+            b = b + _1;
+        }
+
+        BigNumber j("0");
+        BigNumber z = (a.pow(m)) % p;
+
+        // 3) Если z = 1 или если z = p - 1, то p проходит проверку и может быть простым числом. 
+        if (!((z == _1) or (z == pm1)))
+            return false;
+
+        while (true) {
+            // 4) Если j > 0 и z = 1, то p не является простым числом.
+            if ((j > _0) and (z == _1))
+                return false;
+            // 5.1) Установите j = j + 1. 
+            j = j + _1;
+            // 5.2) Если j < b и z != p - 1, установите z = z2 mod p и вернитесь на этап (4)
+            if ((j < b) and (z != pm1))
+                z = z.pow(_2) % p;
+            else
+                break;
+        }
+        // 5.3) Если z = p - 1, то p проходит проверку и может быть простым числом.
+        if (z != pm1)
+            return false;
+        // 6) Если j = b и z != (p - 1), то p не является простым числом. 
+        if (j == b and z != pm1)
+            return false;
+
+        return true;
     }
 
 
@@ -575,7 +672,13 @@ int main()
     std::cout << "Cook4: " << first.to_string() << " * " << second.to_string() << " = " << r.to_string() << "\n";
 */
 
-    BigNumber first("54");
-    BigNumber second("24");
-    std::cout << "pow: " << gcd(first, second).to_string() << "\n";
+    BigNumber first("11");
+    BigNumber second("100");
+
+    auto z = first.prime_factorization();
+    for (const auto& value : z) {
+        std::cout << value.to_string() << "\n";
+    }
+
+    std::cout << "chek_lehmann: " << (chek_lehmann(first, second) ? "True" : "False");
     }
