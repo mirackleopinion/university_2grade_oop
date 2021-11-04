@@ -533,8 +533,12 @@ public:
         BigNumber j = ((p - _1) / _2).mul_karatsuba(a) % p;
 
         //TODO Jakobi
-        BigNumber jabobi = get_jacobi(a, p);
-
+        BigNumber jakobi = get_jacobi(a, p);
+        //Если j != J(a,p), то число p наверняка не является простым. 
+        if (j != jakobi)
+            return false;
+        //Если j = J(a,p), то вероятность того, что число p не является простым, не больше 50 процентов.
+        return true;
     }
 
     std::vector<BigNumber> prime_factorization() {
@@ -663,7 +667,6 @@ int main()
     std::cout << "Karatsuba multiplication: " << first.to_string() << " * " << second.to_string() << " = " << first.mul_karatsuba(second).to_string() << "\n";
     std::cout << "Schonhage-Strassen multiplication: " << first.to_string() << " * " << second.to_string() << " = " << first.mul_schonhage(second).to_string() << "\n";
     std::cout << "Cook division: " << first.to_string() << " / " << second.to_string() << " = " << (first / second).to_string() << "\n";
-    std::cout << "               " << first.to_string() << " % " << second.to_string() << " = " << (first % second).to_string() << "\n";
 
     BigNumber first("1234567890123456789012");
     BigNumber second("987654321987654321098");
@@ -672,13 +675,13 @@ int main()
     std::cout << "Cook4: " << first.to_string() << " * " << second.to_string() << " = " << r.to_string() << "\n";
 */
 
-    BigNumber first("11");
-    BigNumber second("100");
+    BigNumber first("6");
+    BigNumber second("5");
 
     auto z = first.prime_factorization();
     for (const auto& value : z) {
         std::cout << value.to_string() << "\n";
     }
 
-    std::cout << "chek_lehmann: " << (chek_lehmann(first, second) ? "True" : "False");
+    std::cout << "chek_sol_strassen: " << (chek_sol_strassen(first, second) ? "True" : "False");
     }
