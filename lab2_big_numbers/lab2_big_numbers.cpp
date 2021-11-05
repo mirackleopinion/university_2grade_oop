@@ -523,7 +523,7 @@ public:
         return result;
     }
 
-    friend bool chek_sol_strassen(BigNumber& p, BigNumber& a) {
+    friend bool chek_sol_strassen(BigNumber& a, BigNumber& p) {
         BigNumber _1("1");
         BigNumber _2("2");
 
@@ -532,7 +532,6 @@ public:
         BigNumber K = (p - _1) / _2;
         BigNumber j = ((p - _1) / _2).mul_karatsuba(a) % p;
 
-        //TODO Jakobi
         BigNumber jakobi = get_jacobi(a, p);
         //Если j != J(a,p), то число p наверняка не является простым. 
         if (j != jakobi)
@@ -593,7 +592,7 @@ public:
         return !(check != _1 or check != _m1);
     }
 
-    friend bool chek_rabin_miller(BigNumber& p, BigNumber& a) {
+    friend bool chek_rabin_miller(BigNumber& a, BigNumber& p) {
         BigNumber _0("0"), _1("1"), _2("2");
 
         BigNumber pm1 = p - BigNumber("1");
@@ -653,7 +652,7 @@ private:
 
 
 int main()
-{/*
+{
     std::string s;
 
     std::cout << "First: ";
@@ -668,20 +667,14 @@ int main()
     std::cout << "Schonhage-Strassen multiplication: " << first.to_string() << " * " << second.to_string() << " = " << first.mul_schonhage(second).to_string() << "\n";
     std::cout << "Cook division: " << first.to_string() << " / " << second.to_string() << " = " << (first / second).to_string() << "\n";
 
-    BigNumber first("1234567890123456789012");
-    BigNumber second("987654321987654321098");
-
     BigNumber r = first.mul_toom_cook(second);
     std::cout << "Cook4: " << first.to_string() << " * " << second.to_string() << " = " << r.to_string() << "\n";
-*/
 
-    BigNumber first("6");
-    BigNumber second("5");
 
-    auto z = first.prime_factorization();
-    for (const auto& value : z) {
-        std::cout << value.to_string() << "\n";
-    }
+    BigNumber a("2");
+    BigNumber p("4");
 
-    std::cout << "chek_sol_strassen: " << (chek_sol_strassen(first, second) ? "True" : "False");
+    std::cout << "chek_sol_strassen: " << chek_sol_strassen(a, p) ? "True" : "False";
+    std::cout << "chek_lehmann: " << chek_lehmann(a, p) ? "True" : "False";
+    std::cout << "chek_rabin_miller: " << chek_rabin_miller(a, p) ? "True" : "False";
     }
