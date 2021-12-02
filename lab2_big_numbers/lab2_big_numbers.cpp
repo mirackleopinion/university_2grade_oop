@@ -672,7 +672,7 @@ int main()
 
 
     BigNumber a("2");
-    BigNumber p("4");
+    BigNumber p("11");
 
     std::cout << "chek_sol_strassen: " << chek_sol_strassen(a, p) ? "True" : "False";
     std::cout << "chek_lehmann: " << chek_lehmann(a, p) ? "True" : "False";

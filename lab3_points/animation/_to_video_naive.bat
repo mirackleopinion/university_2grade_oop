@@ -1,0 +1,1 @@
+ffmpeg -framerate 15 -i naive\%%05d.png -vf "fps=60,format=yuv420p" -y  naive.mp4
